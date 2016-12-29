@@ -1,0 +1,145 @@
+R version 3.3.1 (2016-06-21) -- "Bug in Your Hair"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+> bmt = read.csv(file.choose(), sep=";", dec=",")
+> attach(bmt)
+> str(bmt)
+'data.frame':	59 obs. of  3 variables:
+ $ status: int  1 1 1 1 1 1 2 2 2 2 ...
+ $ ftime : num  35 8 1 5 2 46 4 4 8 7 ...
+ $ dis   : int  0 0 0 1 1 0 0 1 0 0 ...
+ 
+> dis=factor(dis, levels=c(0,1), labels=
++            c("Allojenik", "Otolog"))
+> table
+function (..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", 
+    "ifany", "always"), dnn = list.names(...), deparse.level = 1) 
+{
+    list.names <- function(...) {
+        l <- as.list(substitute(list(...)))[-1L]
+        nm <- names(l)
+        fixup <- if (is.null(nm)) 
+            seq_along(l)
+        else nm == ""
+        dep <- vapply(l[fixup], function(x) switch(deparse.level + 
+            1, "", if (is.symbol(x)) as.character(x) else "", 
+            deparse(x, nlines = 1)[1L]), "")
+        if (is.null(nm)) 
+            dep
+        else {
+            nm[fixup] <- dep
+            nm
+        }
+    }
+    if (!missing(exclude) && is.null(exclude)) 
+        useNA <- "always"
+    useNA <- match.arg(useNA)
+    args <- list(...)
+    if (!length(args)) 
+        stop("nothing to tabulate")
+    if (length(args) == 1L && is.list(args[[1L]])) {
+        args <- args[[1L]]
+        if (length(dnn) != length(args)) 
+            dnn <- if (!is.null(argn <- names(args))) 
+                argn
+            else paste(dnn[1L], seq_along(args), sep = ".")
+    }
+    bin <- 0L
+    lens <- NULL
+    dims <- integer()
+    pd <- 1L
+    dn <- NULL
+    for (a in args) {
+        if (is.null(lens)) 
+            lens <- length(a)
+        else if (length(a) != lens) 
+            stop("all arguments must have the same length")
+        cat <- if (is.factor(a)) {
+            if (any(is.na(levels(a)))) 
+                a
+            else {
+                if (is.null(exclude) && useNA != "no") 
+                  addNA(a, ifany = (useNA == "ifany"))
+                else {
+                  if (useNA != "no") 
+                    a <- addNA(a, ifany = (useNA == "ifany"))
+                  ll <- levels(a)
+                  a <- factor(a, levels = ll[!(ll %in% exclude)], 
+                    exclude = if (useNA == "no") 
+                      NA)
+                }
+            }
+        }
+        else {
+            a <- factor(a, exclude = exclude)
+            if (useNA != "no") 
+                addNA(a, ifany = (useNA == "ifany"))
+            else a
+        }
+        nl <- length(ll <- levels(cat))
+        dims <- c(dims, nl)
+        if (prod(dims) > .Machine$integer.max) 
+            stop("attempt to make a table with >= 2^31 elements")
+        dn <- c(dn, list(ll))
+        bin <- bin + pd * (as.integer(cat) - 1L)
+        pd <- pd * nl
+    }
+    names(dn) <- dnn
+    bin <- bin[!is.na(bin)]
+    if (length(bin)) 
+        bin <- bin + 1L
+    y <- array(tabulate(bin, pd), dims, dimnames = dn)
+    class(y) <- "table"
+    y
+}
+<bytecode: 0x1028ab188>
+<environment: namespace:base>
+> View(bmt)
+> table(dis,status)
+           status
+dis          0  1  2
+  Allojenik 16  4  7
+  Otolog    23  2  7
+> tapply(ftime, list(dis, status), mean)
+                0    1        2
+Allojenik 45.0625 22.5 9.714286
+Otolog    50.6087  3.5 5.071429
+> source ("CumIncidence.R")
+Error in file(filename, "r", encoding = encoding) : 
+  cannot open the connection
+In addition: Warning message:
+In file(filename, "r", encoding = encoding) :
+  cannot open file 'CumIncidence.R': No such file or directory
+> setwd("~/Data")
+> source ("CumIncidence.R")
+> 4fit¼CumIncidence (ftime, status, dis, cencode ¼
+Error: unexpected symbol in "4fit"
+>                    0, xlab¼"Months")
+Error: unexpected ',' in "                   0,"
+> fit=CumIncidence (ftime, status, dis, cencode =
++                    0, xlab="Months")
+Loading required package: cmprsk
+Loading required package: survival
+
++-------------------------------------------------------------------+
+| Cumulative incidence function estimates from competing risks data |
++-------------------------------------------------------------------+
+Test equality across groups:
+  Statistic p-value df
+1   1.22537  0.2683  1
+2   0.07655  0.7820  1
+
+Estimates at time points:
+            0      20     40     60     80    100
+Allojenik 1 0 0.07576 0.1262 0.2271 0.2271 0.2271
+Otolog 1    0 0.06250 0.0625 0.0625 0.0625 0.0625
+Allojenik 2 0 0.26827 0.2683 0.2683 0.2683 0.2683
+Otolog 2    0 0.21875 0.2188 0.2188 0.2188 0.2188
+
+Standard errors:
+            0      20      40      60      80     100
+Allojenik 1 0 0.05264 0.07106 0.11938 0.11938 0.11938
+Otolog 1    0 0.04349 0.04349 0.04349 0.04349 0.04349
+Allojenik 2 0 0.08903 0.08903 0.08903 0.08903 0.08903
+Otolog 2    0 0.07433 0.07433 0.07433 0.07433 0.07433
